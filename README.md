@@ -14,8 +14,6 @@ cp build/example/index.dart.js example/
 node example/index.dart.js
 ```
 
-
-
 ## Features and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].
