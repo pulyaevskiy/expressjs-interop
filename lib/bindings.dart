@@ -29,7 +29,7 @@ abstract class Application {
   external void enable(String name);
   external void engine(String ext, callback);
   external void get(String path, Middleware callback);
-  external dynamic listen(int port, [String hostname, backlog, callback]);
+  external Server listen(int port, [String hostname, backlog, callback]);
   external void param(dynamic param, callback);
   external String path();
   external void post(String path, Middleware callback);
@@ -99,11 +99,34 @@ abstract class ExpressResponse implements ServerResponse {
   external void redirect(num status, String path);
   external void render(view, locals, callback(err, html));
   external void send([dynamic body]);
-  external void sendFile(String path, [options, fn]);
+  external void sendFile(String path, [SendFileOptions options, fn]);
   external void sendStatus(num statusCode);
   external void set(String field, [value]);
   external void status(num statusCode);
+  external void type(String type);
   external void vary(String field);
+}
+
+@JS()
+@anonymous
+abstract class SendFileOptions {
+  external num get maxAge;
+  external String get root;
+  external bool get lastModified;
+  external dynamic get headers;
+  external String get dotfiles;
+  external bool get acceptRanges;
+  external bool get cacheControl;
+
+  external factory SendFileOptions({
+    num maxAge,
+    String root,
+    bool lastModified,
+    dynamic headers,
+    String dotfiles,
+    bool acceptRanges,
+    bool cacheControl,
+  });
 }
 
 @JS()
@@ -117,6 +140,7 @@ abstract class CookieOptions {
   external String get path;
   external bool get secure;
   external dynamic get sameSite;
+
   external factory CookieOptions({
     String domain,
     JsFunction encode,
