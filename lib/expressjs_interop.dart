@@ -1,238 +1,266 @@
 // Copyright (c) 2017, Anatoly Pulyaevskiy. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
+
+/// Dart bindings for Express JavaScript API.
+@JS()
 library expressjs_interop;
 
-import 'dart:async';
-import 'dart:js';
-import 'dart:js_util';
-import 'package:node_interop/bindings.dart';
+import 'package:js/js.dart';
 import 'package:node_interop/node_interop.dart';
-import 'bindings.dart' as js;
 
-final js.Express _jsExpress = require('express');
-
-/// Main class of Express library.
+/// List of application setting names.
 ///
-/// Use static getter [instance] as an entry point. For instance, to create
-/// an Express application:
-///
-///     Application app = Express.instance();
-///
-/// Wraps around native object returned from `require('express')`.
-class Express {
-  /// Instance of native JavaScript Express object.
-  final js.Express nativeInstance;
-
-  /// Returns singleton instance of this class.
-  static Express get instance => _instance ??= new Express._(_jsExpress);
-  static Express _instance;
-
-  Express._(this.nativeInstance);
-
-  Application call() => new Application(nativeInstance());
+/// See also:
+///   - [Application.disable]
+///   - [Application.disabled]
+///   - [Application.enable]
+///   - [Application.set]
+///   - [Application.get]
+abstract class ApplicationSetting {
+  static const String caseSensitiveRouting = 'case sensitive routing';
+  static const String env = 'env';
+  static const String etag = 'etag';
+  static const String jsonpCallbackName = 'jsonp callback name';
+  static const String jsonEscape = 'json escape';
+  static const String jsonReplacer = 'json replacer';
+  static const String jsonSpaces = 'json spaces';
+  static const String queryParser = 'query parser';
+  static const String strictRouting = 'strict routing';
+  static const String subdomainOffset = 'subdomain offset';
+  static const String trustProxy = 'trust proxy';
+  static const String views = 'views';
+  static const String viewCache = 'view cache';
+  static const String viewEngine = 'view engine';
+  static const String xPoweredBy = 'x-powered-by';
 }
 
-typedef void ExpressMiddleware(ExpressRequest request, ExpressResponse response,
-    [next()]);
+/// Creates a new instance of Express [Application].
+///
+/// Usage:
+///
+///     ExpressFunction express = require('express');
+///     Application app = express();
+///     app.get('/', handler);
+///
+/// This is a workaround for an issue in JS interop which prevents declaring
+/// `call` methods on interop classes. For details see:
+/// https://github.com/dart-lang/sdk/issues/30969
+///
+/// In case the above issue gets resolved this type definition will be
+/// deprecated.
+///
+/// See also:
+///
+///   - [Express]
+@JS()
+typedef Application ExpressFunction();
 
-/// Express Application.
-class Application {
-  final js.Application nativeInstance;
+/// Main class of Express module.
+@JS()
+abstract class Express {
+  // JS interop bug in Dart SDK prevents us from making interop classes
+  // callable.
+  // See for details: https://github.com/dart-lang/sdk/issues/30969
+//  external Application call();
 
-  Application(this.nativeInstance);
-
-  void all(String path, ExpressMiddleware listener) =>
-      nativeInstance.all(path, _wrapListener(listener));
-  void delete(String path, ExpressMiddleware listener) =>
-      nativeInstance.delete(path, _wrapListener(listener));
-  void get(String path, ExpressMiddleware listener) =>
-      nativeInstance.get(path, _wrapListener(listener));
-  void post(String path, ExpressMiddleware listener) =>
-      nativeInstance.post(path, _wrapListener(listener));
-  void put(String path, ExpressMiddleware listener) =>
-      nativeInstance.put(path, _wrapListener(listener));
-
-  Function _wrapListener(ExpressMiddleware listener) =>
-      allowInterop((js.ExpressRequest request, js.ExpressResponse response,
-          [Function next]) {
-        var req = new ExpressRequest(request);
-        var res = new ExpressResponse(response);
-        var wrappedNext = () {
-          next();
-        };
-        listener(req, res, wrappedNext);
-      });
-
-  Server listen(int port) {
-    return nativeInstance.listen(port);
-  }
+  external dynamic static(root, [options]);
+  external dynamic Router([options]);
 }
 
-/// Express HTTP request.
-class ExpressRequest {
-  final js.ExpressRequest nativeInstance;
+@JS()
+abstract class Application implements EventEmitter {
+  // JS interop bug in Dart SDK prevents us from making interop classes
+  // callable.
+  // See for details: https://github.com/dart-lang/sdk/issues/30969
+//  external void call(req, res, [next]);
 
-  ExpressRequest(this.nativeInstance);
+  external dynamic get locals;
 
-  /// The URL path on which a router instance was mounted.
-  String get baseUrl => nativeInstance.baseUrl;
-  Map<String, dynamic> get body =>
-      nativeInstance.body ?? jsObjectToMap(nativeInstance.body);
+  /// Contains one or more path patterns on which a sub-app was mounted.
+  external dynamic get mountpath;
 
-  Map<String, dynamic> get cookies => jsObjectToMap(nativeInstance.cookies);
+  /// Matches all HTTP verbs for [path].
+  ///
+  /// [handlers] can be either [Middleware] or a `List<Middleware>`.
+  external void all(String path, dynamic handlers);
 
-  bool get fresh => nativeInstance.fresh;
-  String get hostname => nativeInstance.hostname;
-  String get ip => nativeInstance.ip;
-  List<String> get ips => (nativeInstance.ips != null)
-      ? nativeInstance.ips.toList(growable: false)
-      : [];
-  String get method => nativeInstance.method;
-  String get originalUrl => nativeInstance.originalUrl;
-  Map<String, dynamic> get params => jsObjectToMap(nativeInstance.params);
-  String get path => nativeInstance.path;
-  String get protocol => nativeInstance.protocol;
-  Map<String, dynamic> get query => jsObjectToMap(nativeInstance.query);
-  bool get secure => nativeInstance.secure;
-  Map<String, dynamic> get signedCookies =>
-      jsObjectToMap(nativeInstance.signedCookies);
-  bool get stale => nativeInstance.stale;
-  List<String> get subdomains => (nativeInstance.subdomains != null)
-      ? nativeInstance.subdomains.toList(growable: false)
-      : [];
-  bool get xhr => nativeInstance.xhr;
+  /// Routes HTTP DELETE requests to the specified [path] with the specified
+  /// handler functions.
+  ///
+  /// [handlers] can be either [Middleware] or a `List<Middleware>`.
+  external void delete(String path, dynamic handlers);
+
+  /// Sets the Boolean setting name to `false`, where name is one of the
+  /// constants from [ApplicationSetting].
+  ///
+  /// This is the same as calling `set(name, false)`.
+  external void disable(String name);
+
+  /// Returns `true` if the Boolean setting [name] is disabled (false).
+  ///
+  /// The name is one of the constants from [ApplicationSetting].
+  external bool disabled(String name);
+
+  /// Sets the Boolean setting name to `true`, where name is one of the
+  /// constants from [ApplicationSetting].
+  ///
+  /// This is the same as calling `set(name, true)`.
+  external void enable(String name);
+  external void engine(String ext, callback);
+
+  /// Routes HTTP GET requests to the specified [path] with the specified
+  /// handler functions.
+  ///
+  /// [handlers] can be either [Middleware] or a `List<Middleware>`.
+  external void get(String path, dynamic handlers);
+  external HttpServer listen(int port, [String hostname, backlog, callback]);
+  external void param(dynamic param, RequestParamHandler handler);
+  external String path();
+
+  /// Routes HTTP POST requests to the specified [path] with the specified
+  /// handler functions.
+  ///
+  /// [handlers] can be either [Middleware] or a `List<Middleware>`.
+  external void post(String path, dynamic handlers);
+
+  /// Routes HTTP PUT requests to the specified [path] with the specified
+  /// handler functions.
+  ///
+  /// [handlers] can be either [Middleware] or a `List<Middleware>`.
+  external void put(String path, dynamic handlers);
+  external String render(view, locals, callback(err, html));
+  external Route route(String path);
+  external void set(String name, dynamic value);
+
+  /// Mounts the specified [handlers] at the specified path.
+  ///
+  /// The handlers are executed when the base of the requested path matches
+  /// path. [handlers] can be either [Middleware] or a `List<Middleware>`.
+  external void use(String path, dynamic handlers);
 }
 
-/// Express HTTP response.
-class ExpressResponse {
-  final js.ExpressResponse nativeInstance;
-  ExpressResponse(this.nativeInstance);
+@JS()
+abstract class Route {
+  external String get path;
+  external Route all(Middleware handler);
+  external Route get(Middleware handler);
+  external Route post(Middleware handler);
+  external Route put(Middleware handler);
+  external Route delete(Middleware handler);
+}
 
-  bool get headersSent => nativeInstance.headersSent;
+typedef void NextFunction([err]);
+typedef void Middleware(Request req, Response res, NextFunction next);
+typedef void ErrorHandlingMiddleware(
+    error, Request req, Response res, NextFunction next);
+typedef dynamic RequestParamHandler(
+    Request req, Response res, NextFunction next, dynamic value,
+    String name);
 
-  Map<String, dynamic> get locals => jsObjectToMap(nativeInstance.locals);
+@JS()
+abstract class Request implements IncomingMessage {
+  external Application get app;
+  external String get baseUrl;
+  external dynamic get body;
+  external dynamic get cookies;
+  external bool get fresh;
+  external String get hostname;
+  external String get ip;
+  external List<String> get ips;
+  external String get method;
+  external String get originalUrl;
+  external dynamic get params;
+  external String get path;
+  external String get protocol;
+  external dynamic get query;
+  external dynamic get route;
+  external bool get secure;
+  external dynamic get signedCookies;
+  external bool get stale;
+  external List<String> get subdomains;
+  external bool get xhr;
 
-  bool _isPrimitiveType(object) =>
-      (object is num) ||
-      (object is String) ||
-      (object is bool) ||
-      (object == null);
+  external String accepts(String types);
+  external dynamic acceptsCharsets(String charset1,
+      [String charset2, String charset3]);
+  external dynamic acceptsEncodings(String encoding1,
+      [String encoding2, String encoding3]);
+  external dynamic acceptsLanguages(String lang1, [String lang2, String lang3]);
+  external String get(String field);
+  // `is()` excluded as it's not allowed in Dart as a method name.
+  external dynamic param(String name, [dynamic defaultValue]);
+  external dynamic range(int size, [options]);
+}
 
-  /// Sets the HTTP response Content-Disposition header field to “attachment”.
-  ///
-  /// If a filename is given, then it sets the Content-Type based on the
-  /// extension name, and sets the Content-Disposition “filename=” parameter.
-  void attachment([String filename]) {
-    nativeInstance.attachment(filename);
-  }
+@JS()
+abstract class Response implements ServerResponse {
+  external Application get app;
+  external bool get headersSent;
+  external dynamic get locals;
+  external void append(String field, [dynamic value]);
+  external void attachment([String filename]);
+  external void cookie(String name, dynamic value, [CookieOptions options]);
+  external void clearCookie(String name, [CookieOptions options]);
+  external void download(String path, [String filename, fn]);
+  external void format(object);
+  external dynamic get(String field);
+  external void json([body]);
+  external void jsonp([body]);
+  external void links(links);
+  external void location(String path);
+  external void redirect(num status, String path);
+  external void render(view, locals, callback(err, html));
+  external void send([dynamic body]);
+  external void sendFile(String path, [SendFileOptions options, fn]);
+  external void sendStatus(num statusCode);
+  external void set(String field, [value]);
+  external void status(num statusCode);
+  external void type(String type);
+  external void vary(String field);
+}
 
-  /// Sets cookie [name] to [value].
-  void cookie(String name, String value) {
-    nativeInstance.cookie(name, value);
-  }
+@JS()
+@anonymous
+abstract class SendFileOptions {
+  external num get maxAge;
+  external String get root;
+  external bool get lastModified;
+  external dynamic get headers;
+  external String get dotfiles;
+  external bool get acceptRanges;
+  external bool get cacheControl;
 
-  /// Clears the cookie specified by [name].
-  void clearCookie(String name) {
-    nativeInstance.clearCookie(name);
-  }
-
-  /// Ends the response process.
-  ///
-  /// Use to quickly end the response without any data. Use [send] or [json]
-  /// to create response with a body.
-  void end() => nativeInstance.end();
-
-  /// Returns the HTTP response header specified by field.
-  ///
-  /// The match is case-insensitive.
-  String get(String name) => nativeInstance.get(name);
-
-  /// Sends a JSON response.
-  ///
-  /// This method sends a response (with the correct content-type).
-  void json([dynamic body]) {
-    var jsObject = _isPrimitiveType(body) ? body : jsify(body);
-    nativeInstance.json(jsObject);
-  }
-
-  /// Sets "Location" HTTP header for this response to the specified [path]
-  /// parameter.
-  void location(String path) {
-    nativeInstance.location(path);
-  }
-
-  /// Redirects to the URL derived from the specified [path], with specified
-  /// [statusCode].
-  ///
-  /// If not specified, `statusCode` defaults to "302 Found".
-  void redirect(String path, [int statusCode = 302]) {
-    nativeInstance.redirect(statusCode, path);
-  }
-
-  /// Sends the HTTP response.
-  ///
-  /// The [body] parameter can be a String, a Map, or any Iterable.
-  void send([dynamic body]) {
-    var jsObject = _isPrimitiveType(body) ? body : jsify(body);
-    nativeInstance.send(jsObject);
-  }
-
-  /// Transfers the file at the given path.
-  ///
-  /// Sets the Content-Type response HTTP header field based on the filename’s
-  /// extension. Unless the root option is set in the options object, [path]
-  /// must be an absolute path to the file.
-  ///
-  /// Returned Future completes when the transfer is complete or when an error
-  /// occurs.
-  Future<Null> sendFile(
-    String path, {
-    int maxAge: 0,
+  external factory SendFileOptions({
+    num maxAge,
     String root,
-    bool lastModified: true,
-    String dotfiles: "ignore",
-    bool acceptRanges: true,
-    bool cacheControl: true,
-  }) {
-    var completer = new Completer();
-    var options = new js.SendFileOptions(
-      maxAge: maxAge,
-      root: root,
-      lastModified: lastModified,
-      dotfiles: dotfiles,
-      acceptRanges: acceptRanges,
-      cacheControl: cacheControl,
-    );
-    nativeInstance.sendFile(path, options, allowInterop((error) {
-      if (error != null) {
-        completer.completeError(error); // TODO: dartify error?
-      } else
-        completer.complete();
-    }));
-    return completer.future;
-  }
+    bool lastModified,
+    dynamic headers,
+    String dotfiles,
+    bool acceptRanges,
+    bool cacheControl,
+  });
+}
 
-  /// Sets the response HTTP status code to statusCode and send its string
-  /// representation as the response body.
-  void sendStatus(int statusCode) => nativeInstance.sendStatus(statusCode);
+@JS()
+@anonymous
+abstract class CookieOptions {
+  external String get domain;
+  external Function get encode;
+  external Date get expires;
+  external bool get httpOnly;
+  external num get maxAge;
+  external String get path;
+  external bool get secure;
+  external dynamic get sameSite;
 
-  /// Sets the response’s HTTP header field to value.
-  ///
-  ///     response.set('Content-Type', 'text/plain');
-  void set(String name, String value) => nativeInstance.set(name, value);
-
-  /// Sets the HTTP status for the response.
-  ///
-  /// Unlike native counterpart this method is not chainable because Dart
-  /// provides Cascade notation (`..`) for any instance method.
-  void status(int statusCode) {
-    nativeInstance.status(statusCode);
-  }
-
-  /// Sets the Content-Type HTTP header to the MIME type as determined
-  /// by mime.lookup() for the specified type. If type contains the “/”
-  /// character, then it sets the Content-Type to type.
-  void type(String type) {
-    nativeInstance.type(type);
-  }
+  external factory CookieOptions({
+    String domain,
+    Function encode,
+    Date expires,
+    bool httpOnly,
+    num maxAge,
+    String path,
+    bool secure,
+    dynamic sameSite,
+  });
 }

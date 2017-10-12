@@ -1,16 +1,13 @@
-@JS()
-library expressjs_example;
-
-import 'package:expressjs_interop/bindings.dart';
+import 'package:expressjs_interop/expressjs_interop.dart';
 import 'package:js/js.dart';
-import 'package:node_interop/bindings.dart';
+import 'package:node_interop/node_interop.dart';
 
 void main() {
-  Express express = require('express');
+  ExpressFunction express = node.require('express');
   var app = express();
-  app.get('/test', allowInterop((ExpressRequest req, ExpressResponse res, [next]) {
+  app.get('/', allowInterop((Request req, Response res, NextFunction next) {
     print('Request received: ${req.url}');
-    res.send('data');
+    res.send('OK');
   }));
   app.listen(8080);
 }
