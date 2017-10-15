@@ -1,6 +1,6 @@
 name: expressjs_interop
 description: Dart bindings and interop layer for ExpressJS.
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/pulyaevskiy/expressjs-interop
 author: Anatoly Pulyaevskiy <anatoly.pulyaevskiy@gmail.com>
 
@@ -9,12 +9,11 @@ environment:
 
 dependencies:
   js: ^0.6.1
-  node_interop: '>=0.1.0-beta.2 <0.2.0'
+  node_interop: '>=0.1.0-beta.3 <0.2.0'
 
 dev_dependencies:
   test: ^0.12.0
 
 transformers:
   - $dart2js
-  - node_interop:
-      include: "**/*.dart.js"
+  - node_interop

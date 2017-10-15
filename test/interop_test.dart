@@ -7,6 +7,7 @@ import 'dart:js_util' show setProperty, getProperty;
 import 'package:expressjs_interop/expressjs_interop.dart';
 import 'package:js/js.dart' as js;
 import 'package:node_interop/http.dart';
+import 'package:node_interop/node_interop.dart';
 import 'package:node_interop/test.dart';
 import 'package:test/test.dart';
 

@@ -42,8 +42,8 @@ abstract class ApplicationSetting {
 ///     Application app = express();
 ///     app.get('/', handler);
 ///
-/// This is a workaround for an issue in JS interop which prevents declaring
-/// `call` methods on interop classes. For details see:
+/// This definition exists as a workaround for an issue in JS interop which
+/// prevents declaring `call` methods on interop classes. For details see:
 /// https://github.com/dart-lang/sdk/issues/30969
 ///
 /// In case the above issue gets resolved this type definition will be
@@ -167,7 +167,6 @@ abstract class Request implements IncomingMessage {
   external String get hostname;
   external String get ip;
   external List<String> get ips;
-  external String get method;
   external String get originalUrl;
   external dynamic get params;
   external String get path;

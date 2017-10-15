@@ -7,7 +7,7 @@ void main() {
   var app = express();
   app.get('/', allowInterop((Request req, Response res, NextFunction next) {
     print('Request received: ${req.url}');
-    res.send('OK');
+    res.send(jsify({"result": "OK"}));
   }));
   app.listen(8080);
 }

@@ -2,9 +2,9 @@
 
 ## 0.0.2
 
-- Upgraded to `node_interop: 0.1.0-beta.2`.
+- Upgraded to `node_interop: 0.1.0-beta.3`.
 - Updated bindings and documentation
-- Removed Dart wrappers leaving this library JS-only for now.
+- Removed Dart wrappers leaving this library JS-only (bindings-only) for now.
 
 ## 0.0.1
 
