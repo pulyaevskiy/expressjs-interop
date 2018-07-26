@@ -4,6 +4,8 @@
 
 Provides Dart bindings for Express framework JavaScript API.
 
+> This package is not actively maintained.
+
 > Note that this library does not provide support for
 > handling object and function conversions between Dart and JS.
 > You have to follow [package js](https://pub.dartlang.org/packages/js)

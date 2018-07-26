@@ -1,4 +1,6 @@
-# Changelog
+## 0.0.3
+
+- Prepare for Dart 2 stable.
 
 ## 0.0.2
 

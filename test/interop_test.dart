@@ -6,9 +6,10 @@ import 'dart:js_util' show setProperty, getProperty;
 
 import 'package:expressjs_interop/expressjs_interop.dart';
 import 'package:js/js.dart' as js;
+import 'package:node_http/node_http.dart';
 import 'package:node_interop/http.dart';
 import 'package:node_interop/node_interop.dart';
-import 'package:node_interop/test.dart';
+import 'package:node_interop/util.dart';
 import 'package:test/test.dart';
 
 class User {
@@ -18,14 +19,12 @@ class User {
 }
 
 void main() {
-  installNodeModules({'express': '~4.16.0'});
-
   group('Interop', () {
     HttpServer server;
     Application app;
 
     setUpAll(() {
-      ExpressFunction express = node.require('express');
+      ExpressFunction express = require('express');
       app = express();
       app.param('userId', js.allowInterop((req, res, next, value, name) {
         setProperty(req, 'user', new User(value));
@@ -45,9 +44,9 @@ void main() {
     test('happy path', () async {
       var client = new NodeClient(keepAlive: false);
       var response =
-      await client.get("http://localhost:8080/users/karl-the-fog");
+          await client.get("http://localhost:8080/users/karl-the-fog");
       expect(response.statusCode, 200);
-      expect(JSON.decode(response.body), {"paramFromRequest": "karl-the-fog"});
+      expect(json.decode(response.body), {"paramFromRequest": "karl-the-fog"});
       client.close();
     });
   });

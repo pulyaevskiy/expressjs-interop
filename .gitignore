@@ -1,6 +1,7 @@
 # Files and directories created by pub
 .packages
 .pub/
+.dart_tool
 build/
 *.dart.js
 # Remove the following pattern if you wish to check in your lock file
@@ -12,3 +13,6 @@ doc/api/
 # Node
 node_modules
 package-lock.json
+
+# Editors
+.idea

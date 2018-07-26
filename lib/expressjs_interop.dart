@@ -6,6 +6,8 @@
 library expressjs_interop;
 
 import 'package:js/js.dart';
+import 'package:node_interop/events.dart';
+import 'package:node_interop/http.dart';
 import 'package:node_interop/node_interop.dart';
 
 /// List of application setting names.
