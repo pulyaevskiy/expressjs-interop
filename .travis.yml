@@ -9,4 +9,5 @@ before_install:
   - nvm install node
   - node --version
 script:
+  - npm install
   - pub run test -p node -r expanded -j 1
